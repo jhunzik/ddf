@@ -15,9 +15,12 @@ package org.codice.ddf.commands.catalog;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.isA;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +29,16 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 
+import ddf.catalog.CatalogFramework;
 import ddf.catalog.cache.SolrCacheMBean;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
 import ddf.catalog.data.impl.MetacardImpl;
+import ddf.catalog.data.impl.ResultImpl;
+import ddf.catalog.operation.DeleteRequest;
+import ddf.catalog.operation.DeleteResponse;
+import ddf.catalog.operation.QueryRequest;
+import ddf.catalog.operation.QueryResponse;
 
 public class RemoveCommandTest extends ConsoleOutputCommon {
 
@@ -91,6 +101,39 @@ public class RemoveCommandTest extends ConsoleOutputCommon {
         verify(mbean, times(1)).removeById(idsArray);
     }
 
+    @Test
+    public void testOverMaxItemList() throws Exception {
+        ConsoleOutput consoleOutput = mock(ConsoleOutput.class);
+        int totalResultsToDelete = 100;
+        int resultsPerCFQuery = 22;
+        int numCFCalls = 5;
+        List<String> ids = new ArrayList<>();
+        List<Metacard> mcList = getMetacardList(totalResultsToDelete);
+        for(int i = 0; i < mcList.size(); i++) {
+            ids.add(mcList.get(i).getId());
+        }
+
+        RemoveCommand removeCommand = new RemoveCommand();
+
+        final CatalogFramework catalogFramework = mock(CatalogFramework.class);
+
+        QueryResponse queryResponse = mock(QueryResponse.class);
+        when(queryResponse.getResults()).thenReturn(getResultList(totalResultsToDelete));
+        when(catalogFramework.query(isA(QueryRequest.class))).thenReturn(queryResponse);
+
+        DeleteResponse deleteResponse = mock(DeleteResponse.class);
+        when(deleteResponse.getDeletedMetacards()).thenReturn(getMetacardList(resultsPerCFQuery));
+        when(catalogFramework.delete(isA(DeleteRequest.class))).thenReturn(deleteResponse);
+
+        removeCommand.catalogFramework = catalogFramework;
+        removeCommand.cqlFilter = "title like 'a*'";
+        removeCommand.ids = ids;
+        removeCommand.cache = false;
+
+        verify(catalogFramework, times(numCFCalls)).delete(isA(DeleteRequest.class));
+        assertThat(consoleOutput.getOutput(), containsString("100" + " metacards to remove."));
+    }
+
     /**
      * Tests the {@Link RemoveCommand} when passed
      * a null list of ids
@@ -127,5 +170,22 @@ public class RemoveCommandTest extends ConsoleOutputCommon {
         }
 
         return metacards;
+    }
+
+    private java.util.List<Result> getResultList(int amount) {
+        java.util.List<Result> results = new ArrayList<>();
+
+        for (int i = 0; i < amount; i++) {
+
+            String id = UUID.randomUUID()
+                    .toString();
+            MetacardImpl metacard = new MetacardImpl();
+            metacard.setId(id);
+            Result result = new ResultImpl(metacard);
+            results.add(result);
+
+        }
+
+        return results;
     }
 }

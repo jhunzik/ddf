@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -26,13 +27,14 @@ import org.apache.karaf.shell.api.action.Command;
 import org.apache.karaf.shell.api.action.Option;
 import org.apache.karaf.shell.api.action.lifecycle.Service;
 import org.codice.ddf.commands.catalog.facade.CatalogFacade;
+import org.opengis.filter.sort.SortBy;
 import org.slf4j.LoggerFactory;
 
 import ddf.catalog.operation.DeleteResponse;
-import ddf.catalog.operation.SourceResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
 import ddf.catalog.operation.impl.QueryRequestImpl;
+import ddf.catalog.util.impl.ResultIterable;
 
 /**
  * Deletes records by ID.
@@ -44,6 +46,8 @@ public class RemoveCommand extends CqlCommands {
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(RemoveCommand.class);
 
     private static final String IDS_LIST_ARGUMENT_NAME = "IDs";
+
+    private static final int PAGE_SIZE = 250;
 
     @Argument(name = IDS_LIST_ARGUMENT_NAME, description = "The id(s) of the document(s) by which to filter.", index = 0, multiValued = true, required = false)
     List<String> ids = null;
@@ -84,19 +88,15 @@ public class RemoveCommand extends CqlCommands {
         CatalogFacade catalogProvider = getCatalog();
 
         if (hasFilter()) {
-            QueryImpl query = new QueryImpl(getFilter());
+            ResultIterable resultIterable = new ResultIterable(catalogFramework,
+                    new QueryRequestImpl(new QueryImpl(getFilter(),
+                            1,
+                            PAGE_SIZE,
+                            SortBy.NATURAL_ORDER,
+                            true,
+                            TimeUnit.SECONDS.toMillis(30)), false));
 
-            query.setRequestsTotalResultsCount(true);
-            query.setPageSize(-1);
-
-            Map<String, Serializable> properties = new HashMap<>();
-            properties.put("mode", "native");
-
-            SourceResponse queryResponse = catalogProvider.query(new QueryRequestImpl(query,
-                    properties));
-
-            final List<String> idsFromFilteredQuery = queryResponse.getResults()
-                    .stream()
+            final List<String> idsFromFilteredQuery = resultIterable.stream()
                     .map(result -> result.getMetacard()
                             .getId())
                     .collect(Collectors.toList());
@@ -118,7 +118,8 @@ public class RemoveCommand extends CqlCommands {
             return null;
         }
 
-        DeleteRequestImpl request = new DeleteRequestImpl(ids.toArray(new String[numberOfMetacardsToRemove]));
+        DeleteRequestImpl request =
+                new DeleteRequestImpl(ids.toArray(new String[numberOfMetacardsToRemove]));
         DeleteResponse response = catalogProvider.delete(request);
 
         if (response.getDeletedMetacards()
