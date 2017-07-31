@@ -16,7 +16,6 @@ package org.codice.ddf.commands.catalog;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.isA;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -44,14 +43,16 @@ public class RemoveCommandTest extends ConsoleOutputCommon {
 
     private List<Metacard> metacardList = getMetacardList(5);
 
+    SolrCacheMBean mbean;
+
     @Before
     public void setup() {
         metacardList = getMetacardList(5);
+        mbean = mock(SolrCacheMBean.class);
     }
 
     @Test
     public void testSingleItemList() throws Exception {
-        final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
         RemoveCommand removeCommand = new RemoveCommand() {
             @Override
             protected SolrCacheMBean getCacheProxy() {
@@ -65,7 +66,6 @@ public class RemoveCommandTest extends ConsoleOutputCommon {
 
         removeCommand.ids = ids;
         removeCommand.cache = true;
-
         removeCommand.executeWithSubject();
 
         String[] idsArray = new String[ids.size()];
@@ -75,7 +75,6 @@ public class RemoveCommandTest extends ConsoleOutputCommon {
 
     @Test
     public void testMultipleItemList() throws Exception {
-        final SolrCacheMBean mbean = mock(SolrCacheMBean.class);
         RemoveCommand removeCommand = new RemoveCommand() {
             @Override
             protected SolrCacheMBean getCacheProxy() {
@@ -109,13 +108,14 @@ public class RemoveCommandTest extends ConsoleOutputCommon {
         int numCFCalls = 5;
         List<String> ids = new ArrayList<>();
         List<Metacard> mcList = getMetacardList(totalResultsToDelete);
-        for(int i = 0; i < mcList.size(); i++) {
-            ids.add(mcList.get(i).getId());
+        for (int i = 0; i < mcList.size(); i++) {
+            ids.add(mcList.get(i)
+                    .getId());
         }
 
         RemoveCommand removeCommand = new RemoveCommand();
 
-        final CatalogFramework catalogFramework = mock(CatalogFramework.class);
+        CatalogFramework catalogFramework = mock(CatalogFramework.class);
 
         QueryResponse queryResponse = mock(QueryResponse.class);
         when(queryResponse.getResults()).thenReturn(getResultList(totalResultsToDelete));
@@ -126,12 +126,12 @@ public class RemoveCommandTest extends ConsoleOutputCommon {
         when(catalogFramework.delete(isA(DeleteRequest.class))).thenReturn(deleteResponse);
 
         removeCommand.catalogFramework = catalogFramework;
-        removeCommand.cqlFilter = "title like 'a*'";
+        removeCommand.cqlFilter = "title like '*'";
         removeCommand.ids = ids;
         removeCommand.cache = false;
 
-        verify(catalogFramework, times(numCFCalls)).delete(isA(DeleteRequest.class));
         assertThat(consoleOutput.getOutput(), containsString("100" + " metacards to remove."));
+        verify(catalogFramework, times(numCFCalls)).delete(isA(DeleteRequest.class));
     }
 
     /**
@@ -172,8 +172,8 @@ public class RemoveCommandTest extends ConsoleOutputCommon {
         return metacards;
     }
 
-    private java.util.List<Result> getResultList(int amount) {
-        java.util.List<Result> results = new ArrayList<>();
+    private List<Result> getResultList(int amount) {
+        List<Result> results = new ArrayList<>();
 
         for (int i = 0; i < amount; i++) {
 

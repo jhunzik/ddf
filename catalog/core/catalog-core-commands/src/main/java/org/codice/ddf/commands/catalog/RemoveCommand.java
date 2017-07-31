@@ -13,11 +13,9 @@
  */
 package org.codice.ddf.commands.catalog;
 
-import java.io.Serializable;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -30,6 +28,8 @@ import org.codice.ddf.commands.catalog.facade.CatalogFacade;
 import org.opengis.filter.sort.SortBy;
 import org.slf4j.LoggerFactory;
 
+import ddf.catalog.data.Metacard;
+import ddf.catalog.data.Result;
 import ddf.catalog.operation.DeleteResponse;
 import ddf.catalog.operation.impl.DeleteRequestImpl;
 import ddf.catalog.operation.impl.QueryImpl;
@@ -48,6 +48,12 @@ public class RemoveCommand extends CqlCommands {
     private static final String IDS_LIST_ARGUMENT_NAME = "IDs";
 
     private static final int PAGE_SIZE = 250;
+
+    private static final int START_INDEX = 1;
+
+    private static final boolean REQUESTS_TOTAL_RESULTS_COUNT = true;
+
+    private static final long TIME_OUT = TimeUnit.SECONDS.toMillis(30);
 
     @Argument(name = IDS_LIST_ARGUMENT_NAME, description = "The id(s) of the document(s) by which to filter.", index = 0, multiValued = true, required = false)
     List<String> ids = null;
@@ -90,11 +96,11 @@ public class RemoveCommand extends CqlCommands {
         if (hasFilter()) {
             ResultIterable resultIterable = new ResultIterable(catalogFramework,
                     new QueryRequestImpl(new QueryImpl(getFilter(),
-                            1,
+                            START_INDEX,
                             PAGE_SIZE,
                             SortBy.NATURAL_ORDER,
-                            true,
-                            TimeUnit.SECONDS.toMillis(30)), false));
+                            REQUESTS_TOTAL_RESULTS_COUNT,
+                            TIME_OUT), false));
 
             final List<String> idsFromFilteredQuery = resultIterable.stream()
                     .map(result -> result.getMetacard()
