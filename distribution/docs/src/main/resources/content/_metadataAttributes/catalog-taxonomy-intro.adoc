@@ -1,0 +1,15 @@
+:title: Catalog Taxonomy
+:type: appendix
+:status: published
+:parent: Metadata Attributes
+:order: 02
+:summary: Introduction to catalog taxonomy appendix.
+
+== {title}
+
+To facilitate data sharing while maximizing the usefulness of metadata, the attributes on resources are normalized into a common taxonomy that maps to attributes in the desired output format.
+
+[NOTE]
+====
+The taxonomy is presented here for reference only.
+====

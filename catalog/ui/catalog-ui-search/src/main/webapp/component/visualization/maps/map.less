@@ -1,0 +1,52 @@
+@{customElementNamespace}map.show-drawing-tools {
+    .drawing-tools {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        background: @darken-inherited-background-color;
+
+        button {
+            height: auto;
+            padding: @largeSpacing;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate3d(-50%, -50%, 0%);
+        }
+    }
+}
+
+@{customElementNamespace}map {
+  .cesium-button {
+    vertical-align: top;
+  }
+
+  .map-context-menu {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .is-clustering {
+      display: none;
+  }
+
+  .is-clustering.fa-toggle-on {
+    color: lighten(@warning-color, 20%);
+  }
+}
+
+@{customElementNamespace}map.is-clustering {
+  .is-clustering {
+    display: inline;
+  }
+
+  .is-not-clustering {
+    display: none;
+  }
+}

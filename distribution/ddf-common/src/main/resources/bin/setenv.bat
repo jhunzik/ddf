@@ -1,0 +1,86 @@
+@echo off
+rem
+rem
+rem    Licensed to the Apache Software Foundation (ASF) under one or more
+rem    contributor license agreements.  See the NOTICE file distributed with
+rem    this work for additional information regarding copyright ownership.
+rem    The ASF licenses this file to You under the Apache License, Version 2.0
+rem    (the "License"); you may not use this file except in compliance with
+rem    the License.  You may obtain a copy of the License at
+rem
+rem       http://www.apache.org/licenses/LICENSE-2.0
+rem
+rem    Unless required by applicable law or agreed to in writing, software
+rem    distributed under the License is distributed on an "AS IS" BASIS,
+rem    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+rem    See the License for the specific language governing permissions and
+rem    limitations under the License.
+rem
+
+rem
+rem handle specific scripts; the SCRIPT_NAME is exactly the name of the Karaf
+rem script; for example karaf.bat, start.bat, stop.bat, admin.bat, client.bat, ...
+rem
+rem if "%KARAF_SCRIPT%" == "SCRIPT_NAME" (
+rem   Actions go here...
+rem )
+
+rem
+rem general settings which should be applied for all scripts go here; please keep
+rem in mind that it is possible that scripts might be executed more than once, e.g.
+rem in example of the start script where the start script is executed first and the
+rem karaf script afterwards.
+rem
+
+set DDF_HOME=%~dp0%..
+set DDF_HOME=%DDF_HOME:\=/%
+
+rem
+rem The following section shows the possible configuration options for the default 
+rem karaf scripts
+rem
+rem Window name of the windows console
+SET KARAF_TITLE=${command.prompt.title}
+rem Minimum memory for the JVM
+rem SET JAVA_MIN_MEM=2g
+rem Maximum memory for the JVM
+rem SET JAVA_MAX_MEM=4g
+rem Minimum perm memory for the JVM
+rem SET JAVA_PERM_MEM=128M
+rem Maximum memory for the JVM
+rem SET JAVA_MAX_PERM_MEM=512M
+rem Karaf home folder
+rem SET KARAF_HOME
+rem Karaf data folder
+rem SET KARAF_DATA
+rem Karaf base folder
+rem SET KARAF_BASE
+rem Additional available Karaf options
+rem SET KARAF_OPTS=
+
+rem Uncomment out the line below to enable cxf logging interceptors
+rem set EXTRA_JAVA_OPTS="-Dcom.sun.xml.ws.transport.http.HttpAdapter.dump=true"
+
+set DDF_HOME_POLICY=/%DDF_HOME:/bin/..=/%
+
+rem
+rem Admins can uncomment the following line and comment out the other definition of
+rem the KARAF_SYSTEM_OPTS variable in order to determine any missing security permissions
+rem should they install third-party bundles requiring additional access.
+rem
+rem Please note that turning on the PolicyFileGeneratorJSM has the side-effect of turning off
+rem security on your system. It should be used with caution, only to ascertain missing
+rem permissions to be added to the default.policy file.
+rem
+rem N.B. The use of the double equals on the 'java.security.policy' property is intentional.
+rem See http://docs.oracle.com/javase/7/docs/technotes/guides/security/PolicyFiles.html#DefaultLocs
+rem for more information.
+rem
+rem set KARAF_SYSTEM_OPTS=-Dprograde.generated.policy="%DDF_HOME%/generated.policy" -Dprograde.use.own.policy=true -Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.PolicyFileGeneratorJSM -Djava.security.policy==%DDF_HOME%\security\default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity
+
+rem
+rem The Security Manager is turned off by default in DDF.
+rem
+rem set KARAF_SYSTEM_OPTS=-Dpolicy.provider=net.sourceforge.prograde.policy.ProGradePolicy -Djava.security.manager=net.sourceforge.prograde.sm.ProGradeJSM -Djava.security.policy==%DDF_HOME%\security\default.policy -DproGrade.getPermissions.override=sun.rmi.server.LoaderHandler:loadClass,org.apache.jasper.compiler.JspRuntimeContext:initSecurity
+
+set JAVA_OPTS=-Xms2g -Xmx4g -Dderby.system.home="%DDF_HOME%\data\derby" -Dderby.storage.fileSyncTransactionLog=true -Dfile.encoding=UTF8 -Dddf.home=%DDF_HOME% -Dddf.home.policy=%DDF_HOME_POLICY% -XX:+DisableAttachMechanism

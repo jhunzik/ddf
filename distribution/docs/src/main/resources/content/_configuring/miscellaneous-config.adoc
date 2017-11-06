@@ -1,0 +1,10 @@
+:title: Miscellaneous Configurations
+:type: configuringIntro
+:status: published
+:parent: Configuring
+:order: 11
+:Summary: Miscellaneous configurations and optimizations
+
+== {title}
+
+The optional configurations in this section cover minor changes that can be made to optimize ${branding}.

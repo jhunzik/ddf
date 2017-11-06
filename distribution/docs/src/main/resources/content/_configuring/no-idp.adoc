@@ -1,0 +1,16 @@
+:title: Configuring Without an IdP
+:type: subConfiguration
+:status: published
+:parent: Configuring REST Services for Users
+:summary: Configuring without an IdP.
+:order: 20
+
+== {title}
+
+To configure ${branding} to not use an Identity Provider (IdP), simply disable the IdP feature.
+
+. Navigate to the *{admin-console}*.
+. Select the *${ddf-security}* application.
+. Select *Features*.
+. Uninstall the `security-idp` feature.
+

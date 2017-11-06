@@ -1,0 +1,13 @@
+:title: ${ddf-ui} Whitelist
+:type: appendix
+:parent: Application Whitelists
+:children: none
+:status: published
+:order: 07
+:summary: ${ddf-ui} whitelist.
+
+== {title}
+
+The following classes have been exported by the ${ddf-ui} application and are approved for use by third parties:
+
+None.

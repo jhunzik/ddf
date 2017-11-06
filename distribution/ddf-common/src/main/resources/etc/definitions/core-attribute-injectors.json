@@ -1,0 +1,13 @@
+{
+  "inject": [
+    {
+      "attribute": "point-of-contact"
+    }
+  ],
+  "defaults": [
+    {
+      "attribute": "metacard-tags",
+      "value": "resource"
+    }
+  ]
+}
