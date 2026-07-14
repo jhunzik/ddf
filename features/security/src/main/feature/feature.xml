@@ -22,6 +22,7 @@
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/branding/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/camel-karaf/${project.version}/xml/features</repository>
+    <repository>mvn:org.apache.shiro/shiro-features/${apache.shiro.version}/xml/features</repository>
 
     <feature name="security-core-api-dependencies" version="${project.version}"
              description="Dependencies for the core security APIs.">
@@ -52,7 +53,7 @@
         <bundle>mvn:net.minidev/json-smart/${json-smart.version}</bundle>
 
         <!-- Miscellaneous -->
-        <bundle dependency="true">mvn:org.apache.shiro/shiro-core/${apache.shiro.version}</bundle>
+        <feature version="${apache.shiro.version}" dependency="true">shiro-core</feature>
         <bundle>mvn:com.sun.mail/jakarta.mail/${jakarta.mail.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-text/${commons-text.version}</bundle>
 
